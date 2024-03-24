@@ -1,0 +1,34 @@
+<% layout("/layouts/boilerplate.ejs") %>
+<link rel="stylesheet" href="/css/style.css">
+<body>
+    <h1>Welcome to airbng </h1>
+    <form method="post" action="/listings/<%=list._id%>?_method=PUT" novalidate class="needs-validation"> 
+        <div>
+            <label for="title" class="form-label">Title</label>
+            <textarea name="list[title]" rows="2" cols="35" class="form-control " required><%= list.title%></textarea>
+        </div>
+        <div>
+            <label for="description" class="form-label">Description</label>
+            <textarea name="list[description]" rows="2" cols="35" class="form-control " required><%= list.description%></textarea>
+        </div>
+        <div>
+            <label for="description" class="form-label">Image</label>
+            <input type="text" name="list[image]" class="form-control "required value=<%= list.image%>>
+        </div>
+        <div class="col-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" name="list[price]" class="form-control "required value=<%= list.price%>>
+        </div>
+        <div class="col-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" name="list[location]"class="form-control "required value=<%= list.location%>>
+        </div>
+        <div class="col-3">
+            <label for="country" class="form-label">Country</label>
+            <input type="text" name="list[country]"class="form-control "required value=<%= list.country%>>
+        </div>
+        <br>
+        <button class="btn new-btn">Done</button>
+        <br>
+    </form>
+</body>
