@@ -1,12 +1,25 @@
 let express = require("express");
 let app = express();
+
 let mongoose = require("mongoose");
 let {listingSchema} = require("./schema.js");
+
+app.use(express.static("public"));
+let methodoveride = require("method-override");
+app.use(methodoveride("_method"));
+
+let Listing = require("./models/listing.js");
+let path = require("path");
+app.set("view engine","ejs");
+app.set("views",path.join(__dirname,"views"));
+app.use(express.urlencoded({extended:true}));
+
 let ejsMate = require("ejs-mate");
 app.engine('ejs', ejsMate);//Like include use but I  thick using this all css also one time
 let Review = require("./models/review.js");
-app.use(express.static("public"));
+
 let port = 8080;
+
 app.listen(port,()=>{
     console.log("Start");
 });
@@ -21,25 +34,23 @@ async function main() {
 let wrapAsync =require("./utils/wrapAsync.js");
 let MyError = require("./utils/MyError.js");
 
-app.get("/",async(req,res)=>{
+app.get("/",wrapAsync(async(req,res)=>{
     let allListing = await Listing.find({});
     res.render("./listings/index.ejs",{allListing });
-})
+}));
 
-let Listing = require("./models/listing.js");
-let path = require("path");
-app.set("view engine","ejs");
-app.set("views",path.join(__dirname,"views"));
+
 
 app.get("/listings",wrapAsync(async(req,res,next)=>{
     let allListing = await Listing.find({});
     
     res.render("./listings/index.ejs",{allListing });
 }))
-app.use(express.urlencoded({extended:true}));
+
 app.get("/listings/try",(req,res)=>{
     res.render("./listings/new.ejs"); 
 });
+
 app.get("/listings/:id",wrapAsync(async(req,res,next)=>{
     let {id} = req.params;
     let list = await Listing.findById(id).populate("reviews");
@@ -64,32 +75,18 @@ let validateListing = (req,res,next)=>{
 }
 
 app.post("/listings",validateListing,wrapAsync(async(req,res)=>{
-    //to avoid try and catch
-    // if(!req.body){
-    //     throw new MyError(403,"Enter Some Data");
-    // }
-    // let result = listingSchema.validate(req.body);
-    // if(result.error){
-    //     throw new MyError (403, result.error);
-    // }
+
     let {title,description,image,price,location,country} = req.body;
     let list = new Listing({title:title,description:description,image:image,price:price,location:location,country:country});
-    // if(!list.title ||!list.description || !list.image || !list.price || !list.location || !list.country ){
-    //     throw new MyError(403," Some Data Miss");
-    // }
-
     await list.save();
     res.redirect("/listings");
-})
-    
-)
-let methodoveride = require("method-override");
-app.use(methodoveride("_method"));
+}))
+
 app.put("/listings/:id",validateListing,wrapAsync(async(req,res)=>{
     let {id } = req.params;
     await  Listing.findByIdAndUpdate(id,{...req.body.list});
     res.redirect(`/listings/${id}`);
-}))
+}));
 
 app.delete("/listings/:id",wrapAsync(async(req,res)=>{
     let {id} = req.params;
@@ -130,9 +127,8 @@ app.all("*",(req,res,next)=>{
 
 //Invalid data form hopscoch (server side ) that handle asyn error:
 app.use((err,req,res,next)=>{
-    let {status=404 , message="Default Error"} = err;
-    //res.status(status).send(message);
-    res.render("./listings/error.ejs");
+    let {status=400 , message="Something went Wrong "} = err;
+    res.status(status).render("./listings/error.ejs",{message});
 });
 
 
