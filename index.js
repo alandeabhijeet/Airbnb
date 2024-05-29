@@ -2,7 +2,7 @@ let express = require("express");
 let app = express();
 
 let mongoose = require("mongoose");
-let {listingSchema} = require("./schema.js");
+let {listingSchema , reviewSchema} = require("./schema.js");
 
 app.use(express.static("public"));
 let methodoveride = require("method-override");
@@ -73,6 +73,16 @@ let validateListing = (req,res,next)=>{
         next();
     }
 }
+// reviewSchema
+
+let validateReview = (req,res,next)=>{
+    let {err} = reviewSchema.validate(req.body);
+    if(err){
+        throw new MyError(400,err);
+    }else{
+        next();
+    }
+}
 
 app.post("/listings",validateListing,wrapAsync(async(req,res)=>{
 
@@ -97,14 +107,13 @@ app.delete("/listings/:id",wrapAsync(async(req,res)=>{
 
 //Reviews
 //post
-app.post("/listings/:id/review",wrapAsync(async(req,res)=>{
+app.post("/listings/:id/review",validateReview,wrapAsync(async(req,res)=>{
     let {id} = req.params;
     let list = await Listing.findById(id);
     let newReview = new Review (req.body.review);
     list.reviews.push(newReview);
     await newReview.save();
     await list.save();
-    console.log("New review saved");
     res.redirect(`/listings/${id}`);
 }))
 
