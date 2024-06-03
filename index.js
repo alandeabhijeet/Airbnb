@@ -47,18 +47,18 @@ async function main() {
   await mongoose.connect('mongodb://127.0.0.1:27017/airbnb');
 }
 
-
+app.use((req,res,next)=>{
+    res.locals.successMsg = req.flash("success");
+    res.locals.errorMsg = req.flash("error");
+    next();
+})
 
 app.get("/",wrapAsync(async(req,res)=>{
     let allListing = await Listing.find({});
     res.render("./listings/index.ejs",{allListing });
 }));
 
-app.use((req,res,next)=>{
-    res.locals.successMsg = req.flash("success");
-    res.locals.errorMsg = req.flash("error");
-    next();
-})
+
 
 app.use("/listings",listings);
 app.use("/listings/:id/review",reviews);
