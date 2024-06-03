@@ -16,12 +16,17 @@ app.engine('ejs', ejsMate);//Like include use but I  thick using this all css al
 
 let listings = require("./routes/listings.js");
 let reviews = require("./routes/review.js");
+let users = require("./routes/users.js");
 
 let wrapAsync =require("./utils/wrapAsync.js");
 let MyError = require("./utils/MyError.js");
 
 let session = require("express-session");
 let flash = require("connect-flash");
+
+let passport = require("passport");
+let LocalStrategy = require("passport-local");
+let User = require("./models/user.js");
 
 let sessionOption = {
     secret: 'secretKey',
@@ -36,6 +41,13 @@ let sessionOption = {
 
 app.use(session(sessionOption));
 app.use(flash());
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 let port = 8080;
 
@@ -59,7 +71,7 @@ app.get("/",wrapAsync(async(req,res)=>{
 }));
 
 
-
+app.use("/",users);
 app.use("/listings",listings);
 app.use("/listings/:id/review",reviews);
 
