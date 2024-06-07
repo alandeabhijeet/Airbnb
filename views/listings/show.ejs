@@ -8,6 +8,7 @@
         <img src="<%=list.image %>" class="card-img-top show-img" alt="...">
         <div class="card-body">
             <p class="card-text"><b><%=list.title %></b></p>
+            <i><b>Owned by : </b><%=list.owner.username %> <br></i>
             <li><%=list.description %></li>
     <li>&#8377;<%=list.price.toLocaleString("en-IN")   %></li>
     <li><%=list.location %></li>
@@ -20,12 +21,14 @@
         <form method="get" class="btn1 " action="/listings">
             <button>Home</button>
         </form>
+        <% if(currUser && currUser._id.equals(list.owner._id)){ %>
         <form method="get" class="btn2" action="/listings/<%=list._id %>/edit">
             <button>Edit</button>
         </form>
         <form method="post" class="btn3" action="/listings/<%=list._id %>?_method=DELETE">
             <button>Delete</button>
         </form>
+        <%}%>
     </div>
     <br> 
     <hr> 
