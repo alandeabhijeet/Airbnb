@@ -10,9 +10,9 @@
             <p class="card-text"><b><%=list.title %></b></p>
             <i><b>Owned by : </b><%=list.owner.username %> <br></i>
             <li><%=list.description %></li>
-    <li>&#8377;<%=list.price.toLocaleString("en-IN")   %></li>
-    <li><%=list.location %></li>
-    <li><%=list.country %></li>
+            <li>&#8377;<%=list.price.toLocaleString("en-IN")   %></li>
+            <li><%=list.location %></li>
+            <li><%=list.country %></li>
         </div>   
     </div>
    
@@ -32,6 +32,7 @@
     </div>
     <br> 
     <hr> 
+    <% if(currUser) {%>
     <br>
     <form action="/listings/<%=list._id %>/review" method="post" novalidate class="needs-validation">
         <div class="col-8 ">
@@ -48,20 +49,23 @@
         </div>
     </form>
     <hr>
-
+    <%}%>
     <h4>All Review</h4>
     <div class="row">
         <% for (review of list.reviews){%>
             <div class="card col-5 m-3">
                 <div class="card-body">
-                    <h5 class="card-title"> User name </h5>
+                    <h5 class="card-title"> @<%= review.author.username %> </h5>
                     <h6 class="card-subtitle mb-2 text-body-secondary"><%= review.createdAt %></h6>
                     <p class="card-text"><%= review.comment %></p>
                     <p class="card-text"><%= review.rating %> &nbsp;start</p>
                 </div>
+                
+                <%if(review.author._id.equals(currUser._id)){%>
                 <form method="post" action="/listings/<%=list._id %>/review/<%= review._id %>?_method=DELETE" class="mb-3">
                     <button class="btn btn-sm btn-dark">Delete</button>
                 </form>
+                <%}%>
             </div>
         <%}%>
     </div>

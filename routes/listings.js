@@ -5,7 +5,7 @@ let {listingSchema , reviewSchema} = require("../schema.js");
 let wrapAsync =require("../utils/wrapAsync.js");
 let MyError = require("../utils/MyError.js");
 let Listing = require("../models/listing.js");
-
+let Review = require("../models/review.js");
 let {isLoggedIn , isOwner} = require("../middleware.js");
 
 let validateListing = (req,res,next)=>{
@@ -28,7 +28,14 @@ router.get("/try",isLoggedIn,(req,res)=>{
 
 router.get("/:id",wrapAsync(async(req,res,next)=>{
     let {id} = req.params;
-    let list = await Listing.findById(id).populate("reviews").populate("owner");
+    let list = await Listing.findById(id)
+    .populate({
+        path: 'reviews',
+        populate: {
+          path: 'author'
+        }
+      })
+    .populate('owner');
     if(!list){
         req.flash("error" , "Requested listing not exits!");
         res.redirect("/listings");
