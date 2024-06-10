@@ -35,10 +35,27 @@
     <% if(currUser) {%>
     <br>
     <form action="/listings/<%=list._id %>/review" method="post" novalidate class="needs-validation">
-        <div class="col-8 ">
-            <label for="rating" class="form-label offset-5"><b>Rating</b></label> 
-            <input type="range" min="1" max="5" id="rating" name="review[rating]" class="form-range">
-        </div>
+       
+        
+        <fieldset class="starability-slot">
+            <legend>Rating:</legend>
+            <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
+            <input type="radio" id="first-rate1" name="review[rating]" value="1"  />
+            <label for="first-rate1" title="Terrible">1 star</label>
+            <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+            <label for="first-rate2" title="Not good">2 stars</label>
+            <input type="radio" id="first-rate3" name="review[rating]" value="3"  />
+            <label for="first-rate3" title="Average">3 stars</label>
+            <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+            <label for="first-rate4" title="Very good">4 stars</label>
+            <input type="radio" id="first-rate5" name="review[rating]" value="5"  />
+            <label for="first-rate5" title="Amazing">5 stars</label>
+          </fieldset>
+          
+
+
+
+
         <div>
             <label for="comment" class="form-label">Comment</label>
             <input  name="review[comment]" id="comment" class="form-control" required>
@@ -53,12 +70,14 @@
     <h4>All Review</h4>
     <div class="row">
         <% for (review of list.reviews){%>
-            <div class="card col-5 m-3">
+            <div class="card col-3 m-4">
                 <div class="card-body">
                     <h5 class="card-title"> @<%= review.author.username %> </h5>
                     <h6 class="card-subtitle mb-2 text-body-secondary"><%= review.createdAt %></h6>
                     <p class="card-text"><%= review.comment %></p>
                     <p class="card-text"><%= review.rating %> &nbsp;start</p>
+                    <p class="starability-result" data-rating=<%= review.rating %>>
+                    </p>
                 </div>
                 
                 <%if(review.author._id.equals(currUser._id)){%>
