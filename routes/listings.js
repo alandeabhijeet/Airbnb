@@ -18,19 +18,17 @@ let validateListing = (req,res,next)=>{
     }
 }
 
-router.get("/",wrapAsync(listingController.index));
+router.route("/")
+    .get(wrapAsync(listingController.index))
+    .post(isLoggedIn,validateListing,wrapAsync(listingController.add))
 
 router.get("/try",isLoggedIn,listingController.new);
 
-router.get("/:id",wrapAsync(listingController.listingById));
+router.route("/:id")
+    .get(wrapAsync(listingController.listingById))
+    .put(isLoggedIn,isOwner,validateListing,wrapAsync(listingController.update))
+    .delete(isLoggedIn,isOwner,wrapAsync(listingController.delete))
 
 router.get("/:id/edit",isLoggedIn,isOwner,wrapAsync(listingController.edit))
-
-router.post("/",isLoggedIn,validateListing,wrapAsync(listingController.add))
-
-router.put("/:id",isLoggedIn,isOwner,validateListing,wrapAsync(listingController.update));
-
-router.delete("/:id",isLoggedIn,isOwner,wrapAsync(listingController.delete));
-
 
 module.exports = router;
