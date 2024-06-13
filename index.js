@@ -1,96 +1,98 @@
-if(process.env.NODE_ENV !='production')
-require('dotenv').config()
- 
+if (process.env.NODE_ENV != 'production') require('dotenv').config();
 
-let express = require("express");
-let app = express();
+const express = require("express");
+const app = express();
+const mongoose = require("mongoose");
+const path = require("path");
+const methodOverride = require("method-override");
+const ejsMate = require("ejs-mate");
+const session = require("express-session");
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
 
-let mongoose = require("mongoose");
-
+// Middleware
 app.use(express.static("public"));
-let methodoveride = require("method-override");
-app.use(methodoveride("_method"));
+app.use(methodOverride("_method"));
+app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.engine('ejs', ejsMate);
 
-let path = require("path");
-app.set("view engine","ejs");
-app.set("views",path.join(__dirname,"views"));
-app.use(express.urlencoded({extended:true}));
-let ejsMate = require("ejs-mate");
-app.engine('ejs', ejsMate);//Like include use but I  thick using this all css also one time
-
-let listings = require("./routes/listings.js");
-let reviews = require("./routes/review.js");
-let users = require("./routes/users.js");
-
-let wrapAsync =require("./utils/wrapAsync.js");
-let MyError = require("./utils/MyError.js");
-
-let session = require("express-session");
-let flash = require("connect-flash");
-
-let passport = require("passport");
-let LocalStrategy = require("passport-local");
-let User = require("./models/user.js");
-
-let sessionOption = {
+// Session and Flash Configuration
+const sessionOptions = {
     secret: 'secretKey',
     resave: false,
     saveUninitialized: true,
-    cookie:{
-        expires : Date.now() + 7 * 24 * 60 * 60 *1000, // In milisec Date.now return 
-        maxAge : 7 * 24 * 60 * 60 *1000 ,
-        httpOnly : true
+    cookie: {
+        expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 1 week in milliseconds
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        httpOnly: true
     }
-}
-
-app.use(session(sessionOption));
+};
+app.use(session(sessionOptions));
 app.use(flash());
 
+// Passport Configuration
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
-
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-let port = 8080;
-
-main().then(()=>{
-    console.log("Connected");
+// Database Connection
+const dburl = process.env.ATLAS_URL;
+main().then(() => {
+    console.log("Connected to MongoDB");
+}).catch(err => {
+    console.error("Connection error", err);
 });
 
 async function main() {
-  await mongoose.connect('mongodb://127.0.0.1:27017/airbnb');
+  await mongoose.connect(dburl, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
 }
 
-app.use((req,res,next)=>{
+// Global Middleware for Flash Messages and Current User
+app.use((req, res, next) => {
     res.locals.successMsg = req.flash("success");
     res.locals.errorMsg = req.flash("error");
     res.locals.currUser = req.user;
     next();
-})
-
-app.get("/",wrapAsync(async(req,res)=>{
-    let allListing = await Listing.find({});
-    res.render("./listings/index.ejs",{allListing });
-}));
-
-
-app.use("/",users);
-app.use("/listings",listings);
-app.use("/listings/:id/review",reviews);
-
-//not rout
-app.all("*",(req,res,next)=>{
-    next(new MyError(404,"Rout Not exits"));
-})
-
-//Invalid data form hopscoch (server side ) that handle asyn error:
-app.use((err,req,res,next)=>{
-    let {status=400 , message="Something went Wrong "} = err;
-    res.status(status).render("./listings/error.ejs",{message});
 });
 
-app.listen(port,()=>{
-    console.log("Start");
+// Routes
+const listings = require("./routes/listings.js");
+const reviews = require("./routes/review.js");
+const users = require("./routes/users.js");
+const wrapAsync = require("./utils/wrapAsync.js");
+const MyError = require("./utils/MyError.js");
+
+app.get("/", wrapAsync(async (req, res) => {
+    const allListing = await Listing.find({});
+    res.render("./listings/index.ejs", { allListing });
+}));
+
+app.use("/", users);
+app.use("/listings", listings);
+app.use("/listings/:id/review", reviews);
+
+// Catch-all Route for Undefined Routes
+app.all("*", (req, res, next) => {
+    next(new MyError(404, "Route Not Exists"));
+});
+
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+    const { status = 400, message = "Something went wrong" } = err;
+    res.status(status).render("./listings/error.ejs", { message });
+});
+
+// Server Start
+const port = 8080;
+app.listen(port, () => {
+    console.log(`Server started on port ${port}`);
 });
