@@ -7,10 +7,12 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const dburl = process.env.ATLAS_URL;
 
 // Middleware
 app.use(express.static("public"));
@@ -20,8 +22,15 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.engine('ejs', ejsMate);
 
-// Session and Flash Configuration
+const storeOptions = MongoStore.create({
+    mongoUrl : dburl,
+    crypto: {
+        secret: 'secretKey'
+    },
+    touchAfter : 24 * 3600,
+});
 const sessionOptions = {
+    store : storeOptions,
     secret: 'secretKey',
     resave: false,
     saveUninitialized: true,
@@ -31,6 +40,7 @@ const sessionOptions = {
         httpOnly: true
     }
 };
+
 app.use(session(sessionOptions));
 app.use(flash());
 
@@ -41,8 +51,6 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// Database Connection
-const dburl = process.env.ATLAS_URL;
 main().then(() => {
     console.log("Connected to MongoDB");
 }).catch(err => {
