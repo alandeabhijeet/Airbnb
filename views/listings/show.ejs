@@ -5,7 +5,7 @@
         <h3>Listings Details </h3><br>
         </div>
     <div class="listing_card card col-6 offset-2">
-        <img src="<%=list.image %>" class="card-img-top show-img" alt="...">
+        <img src="<%=list.image.url %>" class="card-img-top show-img" alt="...">
         <div class="card-body">
             <p class="card-text"><b><%=list.title %></b></p>
             <i><b>Owned by : </b><%=list.owner.username %> <br></i>
@@ -74,13 +74,12 @@
                 <div class="card-body">
                     <h5 class="card-title"> @<%= review.author.username %> </h5>
                     <h6 class="card-subtitle mb-2 text-body-secondary"><%= review.createdAt %></h6>
-                    <p class="card-text"><%= review.comment %></p>
-                    <p class="card-text"><%= review.rating %> &nbsp;start</p>
                     <p class="starability-result" data-rating=<%= review.rating %>>
+                    <p class="card-text"><%= review.comment %></p>
                     </p>
                 </div>
                 
-                <%if(review.author._id.equals(currUser._id)){%>
+                <%if( currUser && review.author._id.equals(currUser._id)){%>
                 <form method="post" action="/listings/<%=list._id %>/review/<%= review._id %>?_method=DELETE" class="mb-3">
                     <button class="btn btn-sm btn-dark">Delete</button>
                 </form>

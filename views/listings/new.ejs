@@ -3,7 +3,7 @@
     <h1>Welcome to airbng</h1>
     <br>
     <br>
-    <form method="post" action="/listings" novalidate class="needs-validation">
+    <form method="post" action="/listings" novalidate class="needs-validation" enctype="multipart/form-data">
         <div>
             <label for="title" class="form-label">Title</label>
             <input type="text" name="title" placeholder="Title" class="form-control" required>
@@ -16,10 +16,12 @@
             <div class="valid-feedback"> It's Fine </div>
             <div class="invalid-feedback">Enter proper Description</div>
         </div>
+
         <div>
-            <label for="image" class="form-label">Image</label>
-            <input type="text" name="image" placeholder="Image URL" class="form-control">
+            <label for="image" class="form-label">Upload Image</label>
+            <input type="file" name="image" placeholder="Image Upload" class="form-control">
         </div>
+
         <div class="col-3">
             <label for="price" class="form-label">Price</label>
             <input type="number" name="price" required placeholder="1200" class="form-control">

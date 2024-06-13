@@ -17,9 +17,8 @@ let listingSchema = new Schema({
     },
     description: String,
     image: {
-        type: String,
-        default : "https://unsplash.com/photos/brown-wooden-lounge-chairs-on-brown-wooden-dock-during-daytime-xEaAoizNFV8",
-        set: (v) => v === "" ? "https://unsplash.com/photos/brown-wooden-lounge-chairs-on-brown-wooden-dock-during-daytime-xEaAoizNFV8" : v
+        url : String,
+        filename : String,
     },
     price: Number,
     location: String,

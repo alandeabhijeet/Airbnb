@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="/css/style.css">
 <body>
     <h1>Welcome to airbng </h1>
-    <form method="post" action="/listings/<%=list._id%>?_method=PUT" novalidate class="needs-validation"> 
+    <form method="post" action="/listings/<%=list._id%>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data"> 
         <div>
             <label for="title" class="form-label">Title</label>
             <textarea name="list[title]" rows="2" cols="35" class="form-control " required><%= list.title%></textarea>
@@ -12,8 +12,11 @@
             <textarea name="list[description]" rows="2" cols="35" class="form-control " required><%= list.description%></textarea>
         </div>
         <div>
-            <label for="description" class="form-label">Image</label>
-            <input type="text" name="list[image]" class="form-control "required value=<%= list.image%>>
+            <img src="<%=list.image.url %>">
+        </div>
+        <div>
+            <label for="image" class="form-label">Upload New Image</label>
+            <input type="file" name="list[image]" class="form-control">
         </div>
         <div class="col-3">
             <label for="price" class="form-label">Price</label>
